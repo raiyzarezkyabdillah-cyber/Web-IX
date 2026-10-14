@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Kelas - Galaxy Neon Portal</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #05050d;
+            --neon-blue: #00f3ff;
+            --neon-purple: #b026ff;
+            --neon-pink: #ff007f;
+            --card-glass: rgba(18, 18, 38, 0.7);
+            --border-glow: rgba(0, 243, 255, 0.3);
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Canvas Background Bintang */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Header Cyber Galaxy */
+        header {
+            text-align: center;
+            padding: 30px 15px 15px;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(176, 38, 255, 0.6);
+        }
+
+        header p {
+            color: var(--text-dim);
+            font-size: 1rem;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        /* Navigasi Tab Floating */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(10, 10, 25, 0.8);
+            backdrop-filter: blur(15px);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            margin: 0 15px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            color: #fff;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+        }
+
+        /* Container & Card */
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 15px 40px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: slideUp 0.4s ease forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-card {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: linear-gradient(to bottom, var(--neon-blue), var(--neon-purple));
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Grid Hari (Senin - Sabtu) */
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .day-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+
+        .day-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--neon-purple);
+        }
+
+        .day-box h3 {
+            color: var(--neon-pink);
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,0,127,0.3);
+            padding-bottom: 4px;
+        }
+
+        .item-list {
+            list-style: none;
+        }
+
+        .item-list li {
+            padding: 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+        }
+
+        /* Filter & Galeri Foto */
+        .gallery-filter {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glow);
+            color: var(--text-dim);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: var(--neon-blue);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .photo-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-glow);
+            aspect-ratio: 4/3;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .photo-tag {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(5, 5, 13, 0.9));
+            padding: 8px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        /* Today Highlight Card */
+        .today-highlight {
+            background: linear-gradient(135deg, rgba(176, 38, 255, 0.2), rgba(0, 243, 255, 0.1));
+            border: 1px solid var(--neon-blue);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .today-highlight h4 {
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            padding: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas Animasi Bintang Galaxy -->
+    <canvas id="starfield"></canvas>
+
+    <header>
+        <h1>CLASS IX-A</h1>
+        <p>🛸 Website Resmi Kelas IX-A 🚀</p>
+    </header>
+
+    <!-- Menu Navigasi -->
+    <div class="nav-container">
+        <button class="nav-btn active" onclick="openTab('home')"><i class="fa-solid fa-planet-ringed"></i> BERANDA</button>
+        <button class="nav-btn" onclick="openTab('jadwal')"><i class="fa-solid fa-atom"></i> JADWAL</button>
+        <button class="nav-btn" onclick="openTab('piket')"><i class="fa-solid fa-broom"></i> PIKET</button>
+        <button class="nav-btn" onclick="openTab('galeri')"><i class="fa-solid fa-meteor"></i> GALERI</button>
+    </div>
+
+    <div class="container">
+
+        <!-- TAB BERANDA / HOME -->
+        <div id="home" class="tab-content active">
+            
+            <div class="today-highlight">
+                <h4><i class="fa-solid fa-clock"></i> INFORMASI HARI INI</h4>
+                <p id="todayInfo" style="font-size: 0.95rem; color: #fff;">Memuat info hari ini...</p>
+            </div>
+
+            <div class="glass-card">
+                <div class="card-title"><i class="fa-solid fa-shuttle-space"></i> Misi Kelas Kita</div>
+                <p style="color: var(--text-dim); line-height: 1.6; font-size: 0.95rem;">
+                   BELUM TAU
+                </p>
+            </div>
+
+            <div class="glass-card">
+                <div class="card-title"><i class="fa-solid fa-bullhorn"></i> Papan Pengumuman</div>
+                <ul class="item-list">
+                    <li><span>• UPACARA BENDERA SETIAP HARI</span> <span style="color:var(--neon-pink);">SENIN</span></li>
+                    <li><span>• PEMBIASAAN SHOLAT DUHA DAN BACA JUZ AMMA HARI</span> <span style="color:var(--neon-blue);">SELASA-JUMAT</span></li>
+                    <li><span>• UANG KAS SETIAP HARI</span> <span style="color:var(--neon-purple);">SENIN, RABU, SABTU</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- TAB JADWAL PELAJARAN -->
+        <div id="jadwal" class="tab-content">
+            <div class="glass-card">
+                <div class="card-title"><i class="fa-solid fa-book-bookmark"></i> Jadwal Pelajaran (Senin - Sabtu)</div>
+                
+                <div class="day-grid">
+                    <div class="day-box">
+                        <h3>Senin</h3>
+                        <ul class="item-list">
+                            <li><span>IPA</span><span>07:50 - 09;50</span></li>
+                            <li><span>B.INDO</span><span>10:20 - 11:40</span></li>
+                            <li><span>MATEMATIKA</span><span>12:20 - 13:40</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Selasa</h3>
+                        <ul class="item-list">
+                            <li><span>B.INDO</span><span>07:20 - 08:40</span></li>
+                            <li><span>PPKN</span><span>08:40 - 11:10</span></li>
+                            <li><span>TIK</span><span>11:10 - 13:50</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Rabu</h3>
+                        <ul class="item-list">
+                            <li><span>IPS</span><span>07:20 - 08:40</span></li>
+                            <li><span>B.SUNDA</span><span>08:40 - 10:30</span></li>
+                            <li><span>B.INGGRIS</span><span>10:30 - 11:50</span></li>
+                            <li><span>IPA</span><span>12:30 - 13:50</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Kamis</h3>
+                        <ul class="item-list">
+                            <li><span>MATEMATIKA</span><span>07:20 - 09:20</span></li>
+                            <li><span>SBDP</span><span>09:50 - 10:30</span></li>
+                            <li><span>IPS</span><span>10:30 - 11:50</span></li>
+                            <li><span>B.INGGRIS</span><span>12:30 - 13:50</span></></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Jumat</h3>
+                        <ul class="item-list">
+                            <li><span>PAI</span><span>07:20 - 09:20</span></li>
+                            <li><span>SBDP</span><span>09:50 - 11:10</span></li>
+                            <li><span></span><span></span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Sabtu</h3>
+                        <ul class="item-list">
+                            <li><span>B.INDO</span><span>07:15 - 08:35</span></li>
+                            <li><span>BK</span><span>08:35 - 09:15</span></li>
+                            <li><span>PJOK</span><span>09:45 - 11:45</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB JADWAL PIKET -->
+        <div id="piket" class="tab-content">
+            <div class="glass-card">
+                <div class="card-title"><i class="fa-solid fa-broom-ball"></i> Jadwal Piket Kebersihan</div>
+                
+                <div class="day-grid">
+                    <div class="day-box">
+                        <h3>Senin</h3>
+                        <ul class="item-list">
+                            <li><span>1. AINI</span></li>
+                            <li><span>2. ALIECIEA</span></li>
+                            <li><span>3. ALIP</span></li>
+                            <li><span>4. IBNU A</span></li>
+                            <li><span>5. RAIHAN</span></li>
+                            <li><span>6. FEMY</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Selasa</h3>
+                        <ul class="item-list">
+                            <li><span>1. ALYA</span></li>
+                            <li><span>2. AULIA</span></li>
+                            <li><span>3. ANDRA</span></li>
+                            <li><span>4. IBNU B</span></li>
+                            <li><span>5. PUTRI</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Rabu</h3>
+                        <ul class="item-list">
+                            <li><span>1. HIKMAH</span></li>
+                            <li><span>2. HUMAIRA</span></li>
+                            <li><span>3. AZIS</span></li>
+                            <li><span>4. KEVIN</span></li>
+                            <li><span>5. RAIYZA</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Kamis</h3>
+                        <ul class="item-list">
+                            <li><span>1. KIRANA</span></li>
+                            <li><span>2. NILA</span></li>
+                            <li><span>3. DEWA</span></li>
+                            <li><span>4. NUGI</span></li>
+                            <li><span>5. REZKY</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Jumat</h3>
+                        <ul class="item-list">
+                            <li><span>1. NURUL</span></li>
+                            <li><span>2. CLARA</span></li>
+                            <li><span>3. GUNTUR</span></li>
+                            <li><span>4. NABIL</span></li>
+                            <li><span>5. RESKHA</span></li>
+                            <li><span>6. RIA</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="day-box">
+                        <h3>Sabtu</h3>
+                        <ul class="item-list">
+                            <li><span>1. SINTIA</span></li>
+                            <li><span>2. SIFA</span></li>
+                            <li><span>3. NAUFAL</span></li>
+                            <li><span>4. RISNA</span></li>
+                            <li><span>5. TIARA</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB GALERI FOTO -->
+        <div id="galeri" class="tab-content">
+            <div class="glass-card">
+                <div class="card-title"><i class="fa-solid fa-images"></i> FOTO RANDOM</div>
+                
+                <!-- Filter Kategori Foto -->
+                <div class="gallery-filter">
+                    <button class="filter-btn active" onclick="filterGallery('all')">SEMUA</button>
+                </div>
+
+                <div class="gallery-grid">
+                    <div class="photo-card kegiatan">
+                        <img src="foto 1.jpg" alt="Belajar">
+                        <div class="photo-tag"></div>
+                    </div>
+                    <div class="photo-card momen">
+                        <img src="foto 2.jpg" alt="Kompak">
+                        <div class="photo-tag"></div>
+                    </div>
+                    <div class="photo-card kegiatan">
+                        <img src="foto 3.jpg" alt="Kerja Kelompok">
+                        <div class="photo-tag"></div>
+                    </div>
+                    <div class="photo-card momen">
+                        <img src="foto 4.jpg" alt="Acara">
+                        <div class="photo-tag"></div>
+                    </div>
+                     <div class="photo-card momen">
+                        <img src="foto 5.jpg" alt="Acara">
+                        <div class="photo-tag"></div>
+                    </div>
+                     <div class="photo-card momen">
+                        <img src="foto 6.jpg" alt="Acara">
+                        <div class="photo-tag"></div>
+                    </div>
+                     <div class="photo-card momen">
+                        <img src="foto 7.jpg" alt="Acara">
+                        <div class="photo-tag"></div>
+                    </div>
+                     <div class="photo-card momen">
+                        <img src="foto 8.jpg" alt="Acara">
+                        <div class="photo-tag"></div>
+                    </div>
+                     <div class="photo-card momen">
+                        <img src="foto 9.jpg" alt="Acara">
+                        <div class="photo-tag"></div>
+                    </div>
+                     <div class="photo-card momen">
+                        <img src="foto 10.jpg" alt="Acara">
+                        <div class="photo-tag"></div>
+                    </div>
+                     <div class="photo-card momen">
+                        <img src="foto 11.jpg" alt="Acara">
+                        <div class="photo-tag"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Space Portal. Developed inside Acode 📱</p>
+    </footer>
+
+    <!-- JavaScript Interaktif -->
+    <script>
+        // 1. Animasi Canvas Bintang Galaxy Bergerak
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const stars = [];
+        for (let i = 0; i < 120; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 0.5 + 0.1,
+                opacity: Math.random()
+            });
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+
+            stars.forEach(star => {
+                ctx.globalAlpha = star.opacity;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                star.y -= star.speed;
+                if (star.y < 0) {
+                    star.y = canvas.height;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+
+            requestAnimationFrame(drawStars);
+        }
+        drawStars();
+
+        // 2. Fungsi Sistem Tab
+        function openTab(tabName) {
+            const contents = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.nav-btn');
+
+            contents.forEach(c => c.classList.remove('active'));
+            buttons.forEach(b => b.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // 3. Filter Galeri Foto
+        function filterGallery(category) {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const photos = document.querySelectorAll('.photo-card');
+            photos.forEach(photo => {
+                if (category === 'all' || photo.classList.contains(category)) {
+                    photo.style.display = 'block';
+                } else {
+                    photo.style.display = 'none';
+                }
+            });
+        }
+
+        // 4. Otomatis Menampilkan Hari Ini
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const now = new Date();
+        const currentDay = days[now.getDay()];
+
+        const todayInfoElem = document.getElementById('todayInfo');
+        if (currentDay === 'Minggu') {
+            todayInfoElem.innerText = "Hari ini Minggu: Libur Sekolah! Istirahat yang cukup 🚀";
+        } else {
+            todayInfoElem.innerText = `TEING INFO NAON`;
+        }
+    </script>
+</body>
+</html>
